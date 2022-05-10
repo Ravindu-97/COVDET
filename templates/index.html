@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+	<head>
+		<link rel="icon" href="../static/images/logo.png">
+		<meta charset="UTF-8">
+		<title>COVDET</title>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<link rel="stylesheet" href='../static/css/style.css'/>
+		<style>
+            body {
+                background: black;
+                color: white;
+                font-family: Arial;
+            }
+        </style>
+	</head>
+
+	<body>
+		<header style="min-height: 10vh">
+			<div id="header">
+				<div id="logo">
+					<img height="50" width="50" src="../static/images/logo.png" alt="App Logo"/>
+				</div>
+				<div id="header-text">
+					<h2>COVID-19 Detection Using Chest X-Ray Images</h2>
+				</div>
+			</div>
+		</header>
+
+		<div style="min-height:83vh; background-image:url('../static/images/background.png');">
+			<div style="padding: 5px;">
+				<div style="padding:60px;">
+				  <div class="row">
+					<div class="col-md">
+					  <div>
+						<h2>Instructions :</h2>
+					    <ol type="1">
+						  <li>Upload the chest X-Ray image to be analysed. <br> <i> ( Please provide images with only png, jpg
+							  or jpeg extensions. ) </i> </li>
+						  	<input id="file-selector" type="file">
+						  <li style="padding-top:20px;">Then click the "Classify" button to analyse the image and get the classification output.</li>
+						  <li style="padding-top:20px;">Click the "Clear Selection" button to clear the selected image and try another.</li>
+						</ol>
+					  </div>
+					</div>
+					<div class="col-md">
+					  <div align="center">
+						  <img id="selected-image" height="300" width="300" src="../static/images/default.png"
+						  		alt="Analysing Image"/>
+					  </div>
+					  <div align="center">
+				      	<p> Image Name: <span id="filename"> Not Selected </span> </p>
+					  </div>
+					  <div align="center" id="prediction-button">
+						<button id="classify-button" type="button" class="btn btn-success">Classify</button>
+					  </div>
+					</div>
+					<div class="col-md">
+					  <h3>Classification Result</h3>
+					  <div id="classification-result">
+						  <p> <b> Classification: <span id="result">...To be displayed...</span> </b> </p>
+						  <p> <b> Confidence: <span id="confidence">...To be displayed...</span> </b> </p>
+						  <p> <b> Elapsed Time: <span id="elapsed-time">...To be displayed...</span> </b> </p>
+					  </div>
+					  <div style="padding:70px;">
+					    <button id="clear-selection-button" type="button" class="btn btn-danger">Clear Selection</button>
+					  </div>
+					</div>
+				  </div>
+					<h6 id="error"></h6>
+				</div>
+			</div>
+		</div>
+
+		<footer id="footer" style="min-height:7vh;">
+		  <p>© 2021 COVDET | by Ravindu Kaveesha Maginaarachchi | <a href="mailto:ravindu.2017493@iit.ac.lk">E-mail</a></p>
+		</footer>
+	</body>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+<script>
+    let base64Image;
+    let filename = "";
+
+    $("#file-selector").change(function() {
+    	fake_path = document.getElementById('file-selector').value
+    	filename = fake_path.split("\\").pop()
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            let dataURL = reader.result;
+            $('#selected-image').attr("src", dataURL);
+            base64Image = dataURL.replace(/^data:image\/(png|jpg|jpeg);base64,/, "");
+        }
+        reader.readAsDataURL($("#file-selector")[0].files[0]);
+        $("#result").text("");
+        $("#confidence").text("");
+        $("#elapsed-time").text("");
+        $("#filename").text(filename);
+        $("#error").text("");
+
+    });
+
+    $("#classify-button").click(function(){
+            let message = {
+            filename: filename,
+            image: base64Image
+        }
+        $.post("http://127.0.0.1:5000/analyse", JSON.stringify(message), function(response){
+            $("#result").text(response.classification.result);
+            $("#confidence").text(response.classification.confidence.toFixed(2) + "%");
+            $("#elapsed-time").text(response.classification.elapsed_time + " seconds");
+            $("#error").text(response.classification.error);
+        });
+    });
+
+    $("#clear-selection-button").click(function(){
+    	base64Image = undefined;
+    	filename = ""
+    	$("#selected-image").attr("src", "../static/images/default.png");
+		$("#filename").text("Not Selected");
+		$("#result").text("...To be displayed...");
+		$("#confidence").text("...To be displayed...");
+		$("#elapsed-time").text("...To be displayed...");
+		$("#error").text("");
+    });
+    
+</script>
+
+</html>
