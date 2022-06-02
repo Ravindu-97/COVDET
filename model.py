@@ -77,6 +77,8 @@ tz_Colombo = pytz.timezone('Asia/Colombo')
 datetime = datetime.now(tz_Colombo)
 time = datetime.strftime("%I:%M %p")
 
+# Saving the best model while training based on the validation accuracy
+model_checkpoint_saving = ModelCheckpoint('Model Checkpoints/CNN-{}@{}.h5'.format(today, time), save_best_only=True, monitor='val_accuracy')
 # Reducing the learning rate of the model by a factor of 0.5 if the validation accuracy doesn't increase in 2 epochs in a row while training
 reduce_learning_rate = ReduceLROnPlateau(monitor='val_accuracy', factor=0.5, patience=2)
 
