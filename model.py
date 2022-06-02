@@ -83,7 +83,7 @@ model_checkpoint_saving = ModelCheckpoint('Model Checkpoints/CNN-{}@{}.h5'.forma
 reduce_learning_rate = ReduceLROnPlateau(monitor='val_accuracy', factor=0.5, patience=2)
 
 # Starting the training process of the model
-training_process = classifier.fit(X, y, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_split=0.1, callbacks=[reduce_learning_rate])
+training_process = classifier.fit(X, y, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_split=0.1, callbacks=[model_checkpoint_saving, reduce_learning_rate])
 
 # Plotting the training and validation accuracies for visualization
 accuracy = training_process.history['accuracy']
